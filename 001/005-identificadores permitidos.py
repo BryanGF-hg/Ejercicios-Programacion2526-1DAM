@@ -1,0 +1,7 @@
+nombre = ""
+nombre2 = ""
+# 2nombre = ""
+nombre_completo = ""
+# nombre-completo ""
+# nombre completo = ""
+nombreCompleto= ""
