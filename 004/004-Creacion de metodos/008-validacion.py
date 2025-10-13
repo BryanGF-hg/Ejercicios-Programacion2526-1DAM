@@ -1,0 +1,20 @@
+class CuentaBancaria():
+ def __init__(self):
+  self.__saldo = 0
+  self.__cliente = ""
+  
+ # Defino setters y getters para el saldo
+ def setSaldo(self,nuevosaldo):
+  # Establezco una condición de que valida si el saldo nuevo es mayor de 1000 euros
+  if nuevosaldo > self.__saldo + 1000:
+   # Si salta la alarma, avisa y NO cambia el saldo
+   print("Voy a avisar a la entidad de un ingreso muy grande")
+  else
+   # Si pasa el filtro, solo entonces se cambia el saldo
+   self.Saldo = nuevosaldo
+ def getSaldo(self):
+  return self.__saldo
+
+cuentecliente1 = CuentaBancaria() 
+cuentacliente1.setSaldo(10000000)
+print(cuentacliente1.getSaldo()) 
