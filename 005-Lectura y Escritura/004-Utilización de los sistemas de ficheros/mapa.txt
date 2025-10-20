@@ -1,0 +1,9 @@
+/home/bryangf/Escritorio/Bryan Glot/005-Lectura y Escritura/004-Utilización de los sistemas de ficheros/mapa.txt
+/home/bryangf/Escritorio/Bryan Glot/005-Lectura y Escritura/004-Utilización de los sistemas de ficheros/002-atributos.py
+/home/bryangf/Escritorio/Bryan Glot/005-Lectura y Escritura/004-Utilización de los sistemas de ficheros/007-condicion.py
+/home/bryangf/Escritorio/Bryan Glot/005-Lectura y Escritura/004-Utilización de los sistemas de ficheros/001-listar contenido de carpeta.py
+/home/bryangf/Escritorio/Bryan Glot/005-Lectura y Escritura/004-Utilización de los sistemas de ficheros/004-suma del tamaño.py
+/home/bryangf/Escritorio/Bryan Glot/005-Lectura y Escritura/004-Utilización de los sistemas de ficheros/006-tamaño recursivoç.py
+/home/bryangf/Escritorio/Bryan Glot/005-Lectura y Escritura/004-Utilización de los sistemas de ficheros/005-recorrer.py
+/home/bryangf/Escritorio/Bryan Glot/005-Lectura y Escritura/004-Utilización de los sistemas de ficheros/008-escribir en archivo el contenido de la carpeta.py
+/home/bryangf/Escritorio/Bryan Glot/005-Lectura y Escritura/004-Utilización de los sistemas de ficheros/003-formateo el resultado.py

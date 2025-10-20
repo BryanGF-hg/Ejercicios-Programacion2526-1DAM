@@ -1,0 +1,26 @@
+[
+    {
+        "titulo": "Primer articulo",
+        "fecha": 20252026,
+        "autor": "Bryan Glot Fong",
+        "contenido": "Este es el contenido del primer articulo"
+    },
+    {
+        "titulo": "Segundo articulo",
+        "fecha": 20252026,
+        "autor": "Bryan Glot Fong",
+        "contenido": "Este es el contenido del segundo articulo"
+    },
+    {
+        "titulo": "Tercer articulo",
+        "fecha": 20252026,
+        "autor": "Bryan Glot Fong",
+        "contenido": "Este es el contenido del tercer articulo"
+    },
+    {
+        "titulo": "Cuarto articulo",
+        "fecha": 20252026,
+        "autor": "Bryan Glot Fong",
+        "contenido": "Este es el contenido del cuarto articulo"
+    }
+]
