@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <style>
+      html,body{
+        padding:0x;margin:0px;height:100%;width:100%;
+     	}
+      body{
+        background:grey;display:flex;justify-content:
+          center;align-items:center;
+      }
+      main{
+        background:white;height:450px;width:450px;
+        display:grid;grid-template-columns:repeat(3,100fr);
+     	}
+      section{
+        display:grid;grid-template-columns:repeat(3,100fr);
+     	 	border:1px solid black;
+      }
+      div{
+        display:flex;justify-content:center;
+        align-items:center;font-size:27px;
+      }
+    </style>
+  </head>
+ 	<body>
+   	<main>
+      {% for dato in datos: %}
+        <section>
+          {% for numero in dato: %}
+            <section>
+              <div>{{numero}}</div>
+            </section>
+          {% endfor %}
+        </section>
+      {% endfor %}
+    </main>
+  </body>
+</html>
