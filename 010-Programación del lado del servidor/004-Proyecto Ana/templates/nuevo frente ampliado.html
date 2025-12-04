@@ -1,0 +1,482 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <title>Python Web IDE Simple</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: monospace;
+            background: #0d1117;
+            color: #c9d1d9;
+            padding: 20px;
+            height: 100vh;
+            overflow: hidden;
+        }
+        
+        .container {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            height: calc(100vh - 40px);
+        }
+        
+        @media (max-width: 900px) {
+            .container { grid-template-columns: 1fr; }
+        }
+        
+        .panel {
+            background: #161b22;
+            border: 1px solid #30363d;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+        
+        .panel-header {
+            background: #21262d;
+            padding: 12px 16px;
+            border-bottom: 1px solid #30363d;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .btn {
+            background: #238636;
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: monospace;
+            font-size: 13px;
+        }
+        
+        .btn:hover { background: #2ea043; }
+        
+        #editor, #terminal {
+            flex: 1;
+            padding: 15px;
+            background: transparent;
+            color: #c9d1d9;
+            border: none;
+            resize: none;
+            font-family: monospace;
+            font-size: 14px;
+            line-height: 1.5;
+            outline: none;
+        }
+        
+        #editor {
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+        }
+        
+        #terminal {
+            background: black;
+            color: #56d364;
+            overflow: auto;
+            white-space: pre-wrap;
+        }
+        
+        /* Nuevo panel de inputs */
+        .input-panel {
+            border-top: 1px solid #30363d;
+            background: #21262d;
+            padding: 12px 16px;
+        }
+        
+        .input-section {
+            margin-bottom: 10px;
+        }
+        
+        .input-section label {
+            display: block;
+            margin-bottom: 6px;
+            color: #8b949e;
+            font-size: 13px;
+        }
+        
+        .input-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .input-field {
+            flex: 1;
+            background: #0d1117;
+            border: 1px solid #30363d;
+            color: #c9d1d9;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-size: 13px;
+        }
+        
+        .input-field:focus {
+            outline: 2px solid #238636;
+            outline-offset: -2px;
+        }
+        
+        .input-hint {
+            font-size: 11px;
+            color: #8b949e;
+            margin-top: 4px;
+            font-style: italic;
+        }
+        
+        .scroll-buttons {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            background: #21262d;
+            padding: 4px;
+            border-radius: 4px;
+            border: 1px solid #30363d;
+        }
+        
+        .scroll-btn {
+            background: #161b22;
+            border: 1px solid #30363d;
+            color: #c9d1d9;
+            width: 24px;
+            height: 24px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        
+        .output-line {
+            margin: 4px 0;
+            padding: 6px 8px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 4px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .copy-btn {
+            background: transparent;
+            border: 1px solid #30363d;
+            color: #8b949e;
+            padding: 2px 6px;
+            border-radius: 3px;
+            cursor: pointer;
+            font-size: 11px;
+        }
+        
+        .copy-btn:hover { background: #238636; color: white; }
+        
+        .status-bar {
+            padding: 8px 16px;
+            background: #21262d;
+            border-top: 1px solid #30363d;
+            font-size: 11px;
+            color: #8b949e;
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .error { color: #f85149; }
+        .success { color: #56d364; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Editor -->
+        <div class="panel">
+            <div class="panel-header">
+                <span>📝 Editor Python</span>
+                <div>
+                    <button class="btn" id="run-btn">▶ Run (Ctrl+Enter)</button>
+                    <button class="btn" id="clear-btn" style="background: #30363d;">🗑️ Clear</button>
+                </div>
+            </div>
+            <textarea id="editor" placeholder="# Escribe código Python aquí...
+print('Hola Mundo')
+for i in range(3):
+    print(f'Número: {i}')
+
+# Para usar inputs:
+# nombre = input('Tu nombre: ')
+# print(f'Hola {nombre}')">print("Python Web IDE Simple")
+print("Escribe código y haz clic en Run")
+
+# Ejemplo con input:
+# nombre = input("¿Cómo te llamas? ")
+# print(f"Hola {nombre}!")</textarea>
+            
+            <!-- NUEVO PANEL DE INPUTS -->
+            <div class="input-panel">
+                <div class="input-section">
+                    <label for="user-inputs">📥 Inputs para input()</label>
+                    <div class="input-row">
+                        <input type="text" id="user-inputs" class="input-field" 
+                               placeholder="Ej: Juan\n25\nSí">
+                        <button class="btn" id="add-input-btn">+ Añadir</button>
+                    </div>
+                    <div class="input-hint">
+                        Separa múltiples inputs con Enter. Se usarán en orden para cada input() en tu código.
+                    </div>
+                </div>
+                
+                <div class="input-section">
+                    <label for="input-preview">📋 Inputs actuales:</label>
+                    <textarea id="input-preview" class="input-field" rows="2" readonly 
+                              placeholder="Aquí aparecerán tus inputs..."></textarea>
+                    <div class="input-row" style="margin-top: 8px;">
+                        <button class="btn" id="clear-inputs-btn" style="background: #30363d;">🗑️ Limpiar</button>
+                        <button class="btn" id="test-inputs-btn" style="background: #d29922;">🧪 Probar</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="scroll-buttons">
+                <button class="scroll-btn" id="edit-up">↑</button>
+                <button class="scroll-btn" id="edit-down">↓</button>
+                <button class="scroll-btn" id="edit-top">⤒</button>
+                <button class="scroll-btn" id="edit-bottom">⤓</button>
+            </div>
+            
+            <div class="status-bar">
+                <span id="char-count">0 chars</span>
+                <span id="line-count">1 line</span>
+            </div>
+        </div>
+
+        <!-- Terminal -->
+        <div class="panel">
+            <div class="panel-header">
+                <span>🖥️ Consola</span>
+                <div>
+                    <button class="btn" id="copy-all-btn">📋 Copy All</button>
+                    <button class="btn" id="clear-term-btn" style="background: #30363d;">🗑️ Clear</button>
+                </div>
+            </div>
+            <div id="terminal">
+                <div class="output-line">
+                    <span>✅ IDE listo. Escribe código y haz clic en Run.</span>
+                    <button class="copy-btn" onclick="copyLine(this)">Copy</button>
+                </div>
+            </div>
+            
+            <div class="scroll-buttons" style="bottom: 70px;">
+                <button class="scroll-btn" id="term-up">↑</button>
+                <button class="scroll-btn" id="term-down">↓</button>
+                <button class="scroll-btn" id="term-top">⤒</button>
+                <button class="scroll-btn" id="term-bottom">⤓</button>
+            </div>
+            
+            <div class="status-bar">
+                <span>Estado: <span id="status" class="success">Listo</span></span>
+                <span>Última ejecución: <span id="last-run">Nunca</span></span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Elementos DOM
+        const editor = document.getElementById('editor');
+        const terminal = document.getElementById('terminal');
+        const runBtn = document.getElementById('run-btn');
+        const clearBtn = document.getElementById('clear-btn');
+        const copyAllBtn = document.getElementById('copy-all-btn');
+        const clearTermBtn = document.getElementById('clear-term-btn');
+        
+        // Nuevos elementos para inputs
+        const userInputs = document.getElementById('user-inputs');
+        const inputPreview = document.getElementById('input-preview');
+        const addInputBtn = document.getElementById('add-input-btn');
+        const clearInputsBtn = document.getElementById('clear-inputs-btn');
+        const testInputsBtn = document.getElementById('test-inputs-btn');
+        
+        // Array para almacenar inputs
+        let inputs = [];
+        
+        // Botones de scroll
+        document.getElementById('edit-up').onclick = () => editor.scrollTop -= 100;
+        document.getElementById('edit-down').onclick = () => editor.scrollTop += 100;
+        document.getElementById('edit-top').onclick = () => editor.scrollTop = 0;
+        document.getElementById('edit-bottom').onclick = () => editor.scrollTop = editor.scrollHeight;
+        
+        document.getElementById('term-up').onclick = () => terminal.scrollTop -= 100;
+        document.getElementById('term-down').onclick = () => terminal.scrollTop += 100;
+        document.getElementById('term-top').onclick = () => terminal.scrollTop = 0;
+        document.getElementById('term-bottom').onclick = () => terminal.scrollTop = terminal.scrollHeight;
+
+        // Actualizar estadísticas
+        editor.oninput = () => {
+            const text = editor.value;
+            document.getElementById('char-count').textContent = `${text.length} chars`;
+            document.getElementById('line-count').textContent = `${text.split('\n').length} lines`;
+        };
+        editor.oninput(); // Inicializar
+
+        // Manejo de inputs
+        addInputBtn.onclick = () => {
+            const inputText = userInputs.value.trim();
+            if (inputText) {
+                // Separar por líneas si hay múltiples inputs
+                const newInputs = inputText.split('\n').filter(line => line.trim() !== '');
+                inputs.push(...newInputs);
+                updateInputPreview();
+                userInputs.value = '';
+                showOutput(`✅ Añadido(s) ${newInputs.length} input(s)`, "success");
+            }
+        };
+        
+        clearInputsBtn.onclick = () => {
+            if (inputs.length > 0 && confirm('¿Borrar todos los inputs?')) {
+                inputs = [];
+                updateInputPreview();
+                showOutput("🗑️ Inputs limpiados", "success");
+            }
+        };
+        
+        testInputsBtn.onclick = () => {
+            if (inputs.length === 0) {
+                showOutput("ℹ️ No hay inputs para probar", "info");
+            } else {
+                showOutput(`🧪 Inputs listos: ${inputs.length} input(s) preparados`, "success");
+                showOutput(`📋 Contenido: ${inputs.join(' | ')}`, "info");
+            }
+        };
+        
+        userInputs.onkeypress = (e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+                e.preventDefault();
+                addInputBtn.click();
+            }
+        };
+        
+        function updateInputPreview() {
+            if (inputs.length === 0) {
+                inputPreview.value = "No hay inputs configurados";
+                inputPreview.style.color = '#8b949e';
+            } else {
+                inputPreview.value = inputs.map((input, i) => `${i + 1}. "${input}"`).join('\n');
+                inputPreview.style.color = '#56d364';
+            }
+        }
+        
+        // Inicializar preview
+        updateInputPreview();
+
+        // Ejecutar código
+        runBtn.onclick = runCode;
+        editor.onkeydown = (e) => {
+            if (e.ctrlKey && e.key === 'Enter') {
+                e.preventDefault();
+                runCode();
+            }
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                const start = editor.selectionStart;
+                editor.value = editor.value.substring(0, start) + '    ' + editor.value.substring(editor.selectionEnd);
+                editor.selectionStart = editor.selectionEnd = start + 4;
+            }
+        };
+
+        // Funciones principales
+        function runCode() {
+            const code = editor.value.trim();
+            if (!code) {
+                showOutput("❌ No hay código para ejecutar", "error");
+                return;
+            }
+            
+            document.getElementById('status').textContent = "Ejecutando...";
+            document.getElementById('status').className = "error";
+            
+            // Preparar los inputs para enviar al servidor
+            const inputData = inputs.join('\n');
+            
+            fetch('/api', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({
+                    code: code,
+                    input: inputData
+                })
+            })
+            .then(r => r.json())
+            .then(data => {
+                document.getElementById('status').textContent = "Listo";
+                document.getElementById('status').className = "success";
+                document.getElementById('last-run').textContent = new Date().toLocaleTimeString();
+                
+                if (data.success) {
+                    showOutput(data.output, "success");
+                } else {
+                    showOutput(`❌ Error: ${data.error}`, "error");
+                }
+            })
+            .catch(err => {
+                document.getElementById('status').textContent = "Error";
+                document.getElementById('status').className = "error";
+                showOutput(`❌ Error de red: ${err.message}`, "error");
+            });
+        }
+
+        function showOutput(text, type = "normal") {
+            const lines = text.split('\n');
+            lines.forEach(line => {
+                if (line.trim()) {
+                    const div = document.createElement('div');
+                    div.className = 'output-line';
+                    
+                    let icon = '📝';
+                    if (type === 'error') icon = '❌';
+                    if (type === 'success') icon = '✅';
+                    if (type === 'info') icon = 'ℹ️';
+                    
+                    div.innerHTML = `
+                        <span>${icon} ${line}</span>
+                        <button class="copy-btn" onclick="copyLine(this)">Copy</button>
+                    `;
+                    terminal.appendChild(div);
+                }
+            });
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        function copyLine(btn) {
+            const text = btn.parentElement.querySelector('span').textContent;
+            navigator.clipboard.writeText(text).then(() => {
+                btn.textContent = '✓';
+                setTimeout(() => btn.textContent = 'Copy', 1000);
+            });
+        }
+
+        copyAllBtn.onclick = () => {
+            const lines = terminal.querySelectorAll('.output-line span');
+            const text = Array.from(lines).map(span => span.textContent).join('\n');
+            navigator.clipboard.writeText(text).then(() => {
+                copyAllBtn.textContent = '✓ Copiado';
+                setTimeout(() => copyAllBtn.textContent = '📋 Copy All', 1000);
+            });
+        };
+
+        clearBtn.onclick = () => {
+            if (confirm('¿Borrar editor?')) {
+                editor.value = '';
+                editor.oninput();
+            }
+        };
+
+        clearTermBtn.onclick = () => {
+            if (confirm('¿Borrar consola?')) {
+                terminal.innerHTML = '';
+                showOutput("Consola limpiada", "success");
+            }
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,1040 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🚀 Python Web IDE - Interactive Console</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --bg-primary: #0d1117;
+            --bg-secondary: #161b22;
+            --bg-tertiary: #21262d;
+            --text-primary: #c9d1d9;
+            --text-secondary: #8b949e;
+            --accent: #238636;
+            --accent-hover: #2ea043;
+            --error: #f85149;
+            --success: #56d364;
+            --warning: #d29922;
+            --border: #30363d;
+            --shadow: rgba(0, 0, 0, 0.5);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'SF Mono', Monaco, Menlo, Consolas, monospace;
+            background: linear-gradient(135deg, var(--bg-primary) 0%, #1a1f29 100%);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-gap: 20px;
+            height: calc(100vh - 40px);
+        }
+
+        @media (max-width: 900px) {
+            .container {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+        }
+
+        .panel {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 32px var(--shadow);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .panel-header {
+            background: var(--bg-tertiary);
+            padding: 15px 20px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panel-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .panel-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn {
+            background: var(--accent);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+
+        .btn:hover {
+            background: var(--accent-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn:active {
+            transform: translateY(0);
+        }
+
+        .btn-secondary {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-secondary:hover {
+            background: var(--border);
+        }
+
+        .btn-scroll {
+            background: var(--bg-tertiary);
+            border: 1px solid var(--border);
+            padding: 6px 10px;
+            font-size: 12px;
+        }
+
+        .btn-scroll:hover {
+            background: var(--border);
+        }
+
+        .editor-container {
+            flex: 1;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .editor-wrapper {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+        }
+
+        #editor {
+            width: 100%;
+            min-height: 100%;
+            padding: 20px;
+            background: transparent;
+            color: var(--text-primary);
+            border: none;
+            resize: none;
+            font-family: 'SF Mono', Monaco, Menlo, Consolas, monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            tab-size: 4;
+        }
+
+        #editor:focus {
+            outline: none;
+        }
+
+        .editor-scroll-buttons {
+            position: absolute;
+            bottom: 15px;
+            right: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            z-index: 10;
+            background: var(--bg-tertiary);
+            padding: 5px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+
+        .editor-scroll-buttons:hover {
+            opacity: 1;
+        }
+
+        .editor-scroll-btn {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            width: 30px;
+            height: 30px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .editor-scroll-btn:hover {
+            background: var(--border);
+        }
+
+        .terminal-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #terminal {
+            flex: 1;
+            padding: 20px;
+            background: black;
+            color: var(--success);
+            font-family: 'SF Mono', Monaco, Menlo, Consolas, monospace;
+            font-size: 14px;
+            line-height: 1.6;
+            overflow-y: auto;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+            border: none;
+        }
+
+        #terminal pre {
+            margin: 0;
+            font-family: inherit;
+        }
+
+        .terminal-scroll-buttons {
+            position: absolute;
+            bottom: 80px; /* Above the input container */
+            right: 15px;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            z-index: 10;
+            background: var(--bg-tertiary);
+            padding: 5px;
+            border-radius: 6px;
+            border: 1px solid var(--border);
+            opacity: 0.7;
+            transition: opacity 0.3s;
+        }
+
+        .terminal-scroll-buttons:hover {
+            opacity: 1;
+        }
+
+        .terminal-scroll-btn {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            width: 30px;
+            height: 30px;
+            border-radius: 4px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .terminal-scroll-btn:hover {
+            background: var(--border);
+        }
+
+        .input-container {
+            border-top: 1px solid var(--border);
+            padding: 15px;
+            background: var(--bg-tertiary);
+            position: relative;
+        }
+
+        .input-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        #input-prompt {
+            color: var(--warning);
+            font-weight: bold;
+        }
+
+        #user-input {
+            flex: 1;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-family: inherit;
+        }
+
+        #user-input:focus {
+            outline: 2px solid var(--accent);
+            outline-offset: -2px;
+        }
+
+        .output-line {
+            margin: 5px 0;
+            padding: 8px 12px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: background 0.2s ease;
+        }
+
+        .output-line:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .line-content {
+            flex: 1;
+            word-break: break-all;
+        }
+
+        .copy-line-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 4px 8px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            opacity: 0.7;
+            transition: all 0.2s ease;
+        }
+
+        .copy-line-btn:hover {
+            opacity: 1;
+            background: var(--accent);
+            color: white;
+        }
+
+        .status-bar {
+            background: var(--bg-tertiary);
+            padding: 10px 20px;
+            border-top: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            font-size: 12px;
+            color: var(--text-secondary);
+        }
+
+        .suggestions {
+            background: rgba(35, 134, 54, 0.1);
+            border-left: 3px solid var(--accent);
+            padding: 10px 15px;
+            margin: 10px 20px;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .suggestion-item {
+            margin: 5px 0;
+            color: var(--success);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .error {
+            color: var(--error);
+            background: rgba(248, 81, 73, 0.1);
+            border-left: 3px solid var(--error);
+            padding: 10px 15px;
+            margin: 10px 0;
+            border-radius: 6px;
+        }
+
+        .success {
+            color: var(--success);
+            background: rgba(86, 211, 100, 0.1);
+            border-left: 3px solid var(--success);
+            padding: 10px 15px;
+            margin: 10px 0;
+            border-radius: 6px;
+        }
+
+        .stats {
+            display: flex;
+            gap: 20px;
+        }
+
+        .stat-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Code highlighting */
+        .keyword { color: #ff7b72; }
+        .string { color: #a5d6ff; }
+        .comment { color: #8b949e; }
+        .function { color: #d2a8ff; }
+        .number { color: #79c0ff; }
+
+        /* Scrollbar styling */
+        ::-webkit-scrollbar {
+            width: 10px;
+            height: 10px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-tertiary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--border);
+            border-radius: 5px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--text-secondary);
+        }
+
+        /* Animations */
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.5; }
+            100% { opacity: 1; }
+        }
+
+        .loading {
+            animation: pulse 1.5s infinite;
+        }
+
+        /* Tooltip */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: var(--bg-tertiary);
+            color: var(--text-primary);
+            text-align: center;
+            border-radius: 6px;
+            padding: 8px;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            transform: translateX(-50%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            border: 1px solid var(--border);
+            font-size: 12px;
+        }
+
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Editor Panel -->
+        <div class="panel">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <i class="fas fa-code"></i>
+                    <span>Python Editor</span>
+                </div>
+                <div class="panel-actions">
+                    <button class="btn" id="run-btn">
+                        <i class="fas fa-play"></i> Run (Ctrl+Enter)
+                    </button>
+                    <button class="btn btn-secondary" id="clear-btn">
+                        <i class="fas fa-broom"></i> Clear
+                    </button>
+                </div>
+            </div>
+            
+            <div class="editor-container">
+                <div class="editor-wrapper">
+                    <textarea id="editor" placeholder="# Write your Python code here...
+# Example: 
+# for i in range(5):
+#     print(f'Number: {i}')
+# 
+# name = input('Enter your name: ')
+# print(f'Hello, {name}!')">print("Welcome to Python Web IDE!")
+print("You can write and execute Python code here.")
+
+# Try some examples:
+for i in range(3):
+    print(f"Count: {i}")
+
+# This supports input() too!
+name = input("What's your name? ")
+print(f"Hello, {name}!")</textarea>
+                </div>
+                
+                <!-- Editor Scroll Buttons -->
+                <div class="editor-scroll-buttons">
+                    <button class="editor-scroll-btn" id="editor-scroll-up" title="Scroll Up">
+                        <i class="fas fa-chevron-up"></i>
+                    </button>
+                    <button class="editor-scroll-btn" id="editor-scroll-down" title="Scroll Down">
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <button class="editor-scroll-btn" id="editor-scroll-top" title="Scroll to Top">
+                        <i class="fas fa-angle-double-up"></i>
+                    </button>
+                    <button class="editor-scroll-btn" id="editor-scroll-bottom" title="Scroll to Bottom">
+                        <i class="fas fa-angle-double-down"></i>
+                    </button>
+                </div>
+            </div>
+            
+            <div class="suggestions" id="suggestions">
+                <div class="suggestion-item">
+                    <i class="fas fa-lightbulb"></i>
+                    <span id="suggestion-text"></span>
+                </div>
+            </div>
+            
+            <div class="status-bar">
+                <div class="stats">
+                    <div class="stat-item">
+                        <i class="fas fa-file-code"></i>
+                        <span id="char-count">0 chars</span>
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-code-branch"></i>
+                        <span id="line-count">1 line</span>
+                    </div>
+                </div>
+                <div class="stat-item">
+                    <i class="fas fa-microchip"></i>
+                    <span>Python 3.x</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Console Panel -->
+        <div class="panel">
+            <div class="panel-header">
+                <div class="panel-title">
+                    <i class="fas fa-terminal"></i>
+                    <span>Interactive Console</span>
+                </div>
+                <div class="panel-actions">
+                    <button class="btn" id="copy-all-btn">
+                        <i class="fas fa-copy"></i> Copy All
+                    </button>
+                    <button class="btn btn-secondary" id="clear-console-btn">
+                        <i class="fas fa-trash"></i> Clear Console
+                    </button>
+                </div>
+            </div>
+            
+            <div class="terminal-container">
+                <div id="terminal">
+                    <div class="success">
+                        <i class="fas fa-rocket"></i> Python Web IDE ready!
+                    </div>
+                    <div class="output-line">
+                        <div class="line-content">Type your code in the editor and click Run</div>
+                        <button class="copy-line-btn" onclick="copyLine(this)">
+                            <i class="fas fa-copy"></i> Copy
+                        </button>
+                    </div>
+                </div>
+                
+                <!-- Terminal Scroll Buttons -->
+                <div class="terminal-scroll-buttons">
+                    <button class="terminal-scroll-btn" id="terminal-scroll-up" title="Scroll Up">
+                        <i class="fas fa-chevron-up"></i>
+                    </button>
+                    <button class="terminal-scroll-btn" id="terminal-scroll-down" title="Scroll Down">
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <button class="terminal-scroll-btn" id="terminal-scroll-top" title="Scroll to Top">
+                        <i class="fas fa-angle-double-up"></i>
+                    </button>
+                    <button class="terminal-scroll-btn" id="terminal-scroll-bottom" title="Scroll to Bottom">
+                        <i class="fas fa-angle-double-down"></i>
+                    </button>
+                </div>
+                
+                <div class="input-container">
+                    <div class="input-row">
+                        <span id="input-prompt">&gt;&gt;&gt;</span>
+                        <input type="text" id="user-input" placeholder="Type input here when prompted... (Press Enter to send)">
+                        <button class="btn btn-secondary" id="send-input-btn">
+                            <i class="fas fa-paper-plane"></i> Send
+                        </button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="status-bar">
+                <div class="stats">
+                    <div class="stat-item">
+                        <i class="fas fa-history"></i>
+                        <span>Last run: <span id="last-run">Never</span></span>
+                    </div>
+                    <div class="stat-item">
+                        <i class="fas fa-bolt"></i>
+                        <span>Status: <span id="status">Ready</span></span>
+                    </div>
+                </div>
+                <div class="stat-item tooltip">
+                    <i class="fas fa-info-circle"></i>
+                    <span>Interactive</span>
+                    <span class="tooltiptext">Supports print() output and input() prompts</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // DOM Elements
+        const editor = document.getElementById('editor');
+        const terminal = document.getElementById('terminal');
+        const runBtn = document.getElementById('run-btn');
+        const clearBtn = document.getElementById('clear-btn');
+        const copyAllBtn = document.getElementById('copy-all-btn');
+        const clearConsoleBtn = document.getElementById('clear-console-btn');
+        const userInput = document.getElementById('user-input');
+        const sendInputBtn = document.getElementById('send-input-btn');
+        const charCount = document.getElementById('char-count');
+        const lineCount = document.getElementById('line-count');
+        const lastRun = document.getElementById('last-run');
+        const statusEl = document.getElementById('status');
+        const suggestions = document.getElementById('suggestions');
+        const suggestionText = document.getElementById('suggestion-text');
+
+        // Scroll buttons
+        const editorScrollUp = document.getElementById('editor-scroll-up');
+        const editorScrollDown = document.getElementById('editor-scroll-down');
+        const editorScrollTop = document.getElementById('editor-scroll-top');
+        const editorScrollBottom = document.getElementById('editor-scroll-bottom');
+        
+        const terminalScrollUp = document.getElementById('terminal-scroll-up');
+        const terminalScrollDown = document.getElementById('terminal-scroll-down');
+        const terminalScrollTop = document.getElementById('terminal-scroll-top');
+        const terminalScrollBottom = document.getElementById('terminal-scroll-bottom');
+
+        // State
+        let isRunning = false;
+
+        // Initialize
+        updateStats();
+        setupScrollButtons();
+
+        // Event Listeners
+        editor.addEventListener('input', function() {
+            updateStats();
+            highlightCode();
+            checkForSuggestions();
+        });
+
+        editor.addEventListener('keydown', function(e) {
+            if (e.key === 'Tab') {
+                e.preventDefault();
+                const start = this.selectionStart;
+                const end = this.selectionEnd;
+                this.value = this.value.substring(0, start) + '    ' + this.value.substring(end);
+                this.selectionStart = this.selectionEnd = start + 4;
+            }
+            
+            if (e.ctrlKey && e.key === 'Enter') {
+                e.preventDefault();
+                runCode();
+            }
+        });
+
+        runBtn.addEventListener('click', runCode);
+        clearBtn.addEventListener('click', clearEditor);
+        copyAllBtn.addEventListener('click', copyAllOutput);
+        clearConsoleBtn.addEventListener('click', clearConsole);
+        sendInputBtn.addEventListener('click', sendInput);
+        userInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendInput();
+            }
+        });
+
+        // Functions
+        function setupScrollButtons() {
+            // Editor scroll buttons
+            editorScrollUp.addEventListener('click', () => scrollEditor(-100));
+            editorScrollDown.addEventListener('click', () => scrollEditor(100));
+            editorScrollTop.addEventListener('click', () => editor.scrollTop = 0);
+            editorScrollBottom.addEventListener('click', () => {
+                editor.scrollTop = editor.scrollHeight;
+            });
+
+            // Terminal scroll buttons
+            terminalScrollUp.addEventListener('click', () => scrollTerminal(-100));
+            terminalScrollDown.addEventListener('click', () => scrollTerminal(100));
+            terminalScrollTop.addEventListener('click', () => terminal.scrollTop = 0);
+            terminalScrollBottom.addEventListener('click', () => {
+                terminal.scrollTop = terminal.scrollHeight;
+            });
+        }
+
+        function scrollEditor(amount) {
+            editor.scrollTop += amount;
+        }
+
+        function scrollTerminal(amount) {
+            terminal.scrollTop += amount;
+        }
+
+        function updateStats() {
+            const text = editor.value;
+            const chars = text.length;
+            const lines = text.split('\n').length;
+            
+            charCount.textContent = `${chars} chars`;
+            lineCount.textContent = `${lines} ${lines === 1 ? 'line' : 'lines'}`;
+        }
+
+        function highlightCode() {
+            // Simple keyword highlighting
+            const keywords = [
+                'def', 'class', 'if', 'elif', 'else', 'for', 'while',
+                'try', 'except', 'finally', 'with', 'import', 'from',
+                'as', 'return', 'yield', 'async', 'await', 'True',
+                'False', 'None', 'and', 'or', 'not', 'is', 'in'
+            ];
+            
+            let html = editor.value
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;');
+            
+            // Highlight keywords
+            keywords.forEach(keyword => {
+                const regex = new RegExp(`\\b${keyword}\\b`, 'g');
+                html = html.replace(regex, `<span class="keyword">${keyword}</span>`);
+            });
+            
+            // Highlight strings
+            html = html.replace(/(['"])(.*?)\1/g, '<span class="string">$1$2$1</span>');
+            
+            // Highlight comments
+            html = html.replace(/#.*$/gm, '<span class="comment">$&</span>');
+            
+            // Highlight numbers
+            html = html.replace(/\b\d+(\.\d+)?\b/g, '<span class="number">$&</span>');
+            
+            // Highlight functions
+            html = html.replace(/\b(\w+)(?=\()/g, '<span class="function">$1</span>');
+            
+            // Create a temporary element to get plain text
+            const temp = document.createElement('div');
+            temp.innerHTML = html;
+            const plainText = temp.textContent;
+            
+            // Only update if content hasn't changed (avoid cursor jumping)
+            if (plainText === editor.value) {
+                const selectionStart = editor.selectionStart;
+                const selectionEnd = editor.selectionEnd;
+                
+                // Create a div to hold the highlighted text
+                const editorDiv = editor.parentElement;
+                const highlightDiv = document.createElement('div');
+                highlightDiv.className = 'code-highlight';
+                highlightDiv.innerHTML = html;
+                highlightDiv.style.cssText = window.getComputedStyle(editor).cssText;
+                highlightDiv.style.position = 'absolute';
+                highlightDiv.style.top = '0';
+                highlightDiv.style.left = '0';
+                highlightDiv.style.width = '100%';
+                highlightDiv.style.height = '100%';
+                highlightDiv.style.pointerEvents = 'none';
+                highlightDiv.style.overflow = 'hidden';
+                highlightDiv.style.whiteSpace = 'pre-wrap';
+                highlightDiv.style.wordWrap = 'break-word';
+                highlightDiv.style.zIndex = '1';
+                
+                // Remove existing highlight
+                const existingHighlight = editorDiv.querySelector('.code-highlight');
+                if (existingHighlight) {
+                    existingHighlight.remove();
+                }
+                
+                editorDiv.appendChild(highlightDiv);
+                editor.style.backgroundColor = 'transparent';
+                editor.style.position = 'relative';
+                editor.style.zIndex = '2';
+                editor.style.color = 'transparent';
+                editor.style.caretColor = 'var(--text-primary)';
+            }
+        }
+
+        function checkForSuggestions() {
+            const code = editor.value;
+            if (code.includes('input(') && !code.includes('#')) {
+                suggestionText.textContent = "Tip: Use # comments to document your code";
+                suggestions.style.display = 'block';
+            } else if (code.length > 500) {
+                suggestionText.textContent = "Tip: Consider breaking long code into functions";
+                suggestions.style.display = 'block';
+            } else {
+                suggestions.style.display = 'none';
+            }
+        }
+
+        function runCode() {
+            if (isRunning) {
+                showOutput("Already running...", "warning");
+                return;
+            }
+            
+            const code = editor.value;
+            if (!code.trim()) {
+                showOutput("No code to execute!", "error");
+                return;
+            }
+            
+            isRunning = true;
+            statusEl.textContent = "Running...";
+            statusEl.style.color = "var(--warning)";
+            
+            // Show running indicator
+            showOutput("Executing code...", "info");
+            
+            // Send code to server
+            fetch('/api', {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    code: code
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                isRunning = false;
+                statusEl.textContent = "Ready";
+                statusEl.style.color = "var(--success)";
+                lastRun.textContent = new Date().toLocaleTimeString();
+                
+                if (data.success) {
+                    if (data.output) {
+                        showOutput(data.output, "success");
+                    } else {
+                        showOutput("Code executed successfully (no output)", "success");
+                    }
+                } else {
+                    showOutput(`Error: ${data.error}\n${data.traceback || ''}`, "error");
+                }
+            })
+            .catch(error => {
+                isRunning = false;
+                statusEl.textContent = "Error";
+                statusEl.style.color = "var(--error)";
+                showOutput(`Network error: ${error.message}`, "error");
+            });
+        }
+
+        function showOutput(text, type = "normal") {
+            const lines = text.split('\n');
+            lines.forEach(line => {
+                if (line.trim()) {
+                    const lineDiv = document.createElement('div');
+                    lineDiv.className = 'output-line';
+                    
+                    const contentDiv = document.createElement('div');
+                    contentDiv.className = 'line-content';
+                    
+                    if (type === "error") {
+                        contentDiv.innerHTML = `<i class="fas fa-times-circle" style="color: var(--error); margin-right: 8px;"></i>${line}`;
+                    } else if (type === "success") {
+                        contentDiv.innerHTML = `<i class="fas fa-check-circle" style="color: var(--success); margin-right: 8px;"></i>${line}`;
+                    } else if (type === "warning") {
+                        contentDiv.innerHTML = `<i class="fas fa-exclamation-triangle" style="color: var(--warning); margin-right: 8px;"></i>${line}`;
+                    } else if (type === "info") {
+                        contentDiv.innerHTML = `<i class="fas fa-info-circle" style="color: var(--text-secondary); margin-right: 8px;"></i>${line}`;
+                    } else {
+                        contentDiv.textContent = line;
+                    }
+                    
+                    const copyBtn = document.createElement('button');
+                    copyBtn.className = 'copy-line-btn';
+                    copyBtn.innerHTML = '<i class="fas fa-copy"></i> Copy';
+                    copyBtn.onclick = function() {
+                        copyLine(this);
+                    };
+                    
+                    lineDiv.appendChild(contentDiv);
+                    lineDiv.appendChild(copyBtn);
+                    terminal.appendChild(lineDiv);
+                }
+            });
+            
+            // Auto-scroll to bottom
+            terminal.scrollTop = terminal.scrollHeight;
+        }
+
+        function sendInput() {
+            const input = userInput.value.trim();
+            if (!input) return;
+            
+            showOutput(`> ${input}`, "info");
+            userInput.value = '';
+        }
+
+        function copyLine(button) {
+            const lineContent = button.parentElement.querySelector('.line-content');
+            const text = lineContent.textContent || lineContent.innerText;
+            navigator.clipboard.writeText(text).then(() => {
+                button.innerHTML = '<i class="fas fa-check"></i> Copied!';
+                button.style.background = 'var(--success)';
+                setTimeout(() => {
+                    button.innerHTML = '<i class="fas fa-copy"></i> Copy';
+                    button.style.background = '';
+                }, 2000);
+            });
+        }
+
+        function copyAllOutput() {
+            const lines = terminal.querySelectorAll('.line-content');
+            const allText = Array.from(lines).map(line => 
+                line.textContent || line.innerText
+            ).join('\n');
+            
+            navigator.clipboard.writeText(allText).then(() => {
+                copyAllBtn.innerHTML = '<i class="fas fa-check"></i> Copied All!';
+                copyAllBtn.style.background = 'var(--success)';
+                setTimeout(() => {
+                    copyAllBtn.innerHTML = '<i class="fas fa-copy"></i> Copy All';
+                    copyAllBtn.style.background = '';
+                }, 2000);
+            });
+        }
+
+        function clearEditor() {
+            if (confirm('Clear editor? All code will be lost.')) {
+                editor.value = '';
+                updateStats();
+                highlightCode();
+            }
+        }
+
+        function clearConsole() {
+            if (confirm('Clear console output?')) {
+                terminal.innerHTML = '';
+                showOutput("Console cleared", "info");
+            }
+        }
+
+        // Initialize code highlighting
+        setTimeout(() => {
+            highlightCode();
+        }, 100);
+
+        // Add sample code hints
+        const samples = [
+            `# Fibonacci sequence
+def fibonacci(n):
+    if n <= 1:
+        return n
+    return fibonacci(n-1) + fibonacci(n-2)
+
+for i in range(10):
+    print(fibonacci(i))`,
+            `# Simple calculator
+while True:
+    try:
+        num1 = float(input("Enter first number: "))
+        num2 = float(input("Enter second number: "))
+        operation = input("Enter operation (+, -, *, /): ")
+        
+        if operation == '+':
+            result = num1 + num2
+        elif operation == '-':
+            result = num1 - num2
+        elif operation == '*':
+            result = num1 * num2
+        elif operation == '/':
+            result = num1 / num2
+        else:
+            print("Invalid operation")
+            continue
+            
+        print(f"Result: {result}")
+    except ValueError:
+        print("Please enter valid numbers!")
+    except ZeroDivisionError:
+        print("Cannot divide by zero!")`
+        ];
+
+        // Add a sample selector
+        const sampleSelect = document.createElement('select');
+        sampleSelect.style.cssText = `
+            background: var(--bg-tertiary);
+            color: var(--text-primary);
+            border: 1px solid var(--border);
+            padding: 8px;
+            border-radius: 6px;
+            margin-left: 10px;
+            font-family: inherit;
+        `;
+        sampleSelect.innerHTML = `
+            <option value="">Load sample...</option>
+            <option value="fibonacci">Fibonacci Sequence</option>
+            <option value="calculator">Simple Calculator</option>
+            <option value="prime">Prime Numbers</option>
+        `;
+        
+        sampleSelect.onchange = function() {
+            if (this.value === 'fibonacci') {
+                editor.value = samples[0];
+            } else if (this.value === 'calculator') {
+                editor.value = samples[1];
+            } else if (this.value === 'prime') {
+                editor.value = `# Prime number checker
+def is_prime(n):
+    if n <= 1:
+        return False
+    for i in range(2, int(n**0.5) + 1):
+        if n % i == 0:
+            return False
+    return True
+
+print("Prime numbers from 1 to 50:")
+primes = [n for n in range(1, 51) if is_prime(n)]
+print(primes)`;
+            }
+            this.value = '';
+            updateStats();
+            highlightCode();
+        };
+        
+        document.querySelector('.panel-actions').appendChild(sampleSelect);
+    </script>
+</body>
+</html>
