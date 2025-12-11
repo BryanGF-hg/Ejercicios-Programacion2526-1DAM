@@ -1,0 +1,31 @@
+/* ESTILOS GENERALES  */
+html,body{
+	width:100%;
+  height:100%;
+  margin:0px;
+  padding:0px;
+}
+body{
+	display:flex;
+}
+nav{
+	flex:1;
+  background:#FFEAD2;
+}
+main{
+	flex:4;
+  background:white;
+}
+/* ESTILOS DEL MENU  */
+nav{
+	display:flex;
+  padding:20px;
+  flex-direction:column;
+  gap:20px;
+}
+nav button{
+	background:white;
+  border:none;
+  color:black;
+  padding:10px;
+}

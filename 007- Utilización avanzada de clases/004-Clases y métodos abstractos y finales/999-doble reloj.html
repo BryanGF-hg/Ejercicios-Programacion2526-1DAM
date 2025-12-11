@@ -1,0 +1,117 @@
+<!doctype html>
+<html>
+  <head>	
+  </head>
+  <body>
+    <canvas></canvas>
+    <script>
+      // Create canvas and context
+      let lienzo = document.querySelector("canvas");  
+      lienzo.width = 1024; // Wider to fit two clocks
+      lienzo.height = 512; // Same height
+      let contexto = lienzo.getContext("2d");   
+      contexto.lineCap = "round";
+      
+      let temporizador = setTimeout(bucle, 1000); // Start the loop
+    
+      function bucle(){
+        let fecha = new Date();
+        let hora = fecha.getHours();
+        let minuto = fecha.getMinutes();
+        let segundo = fecha.getSeconds();
+        
+        // Clear the entire canvas
+        contexto.clearRect(0, 0, lienzo.width, lienzo.height);
+        
+        // Draw first clock (left side)
+        dibujarReloj(256, 256, hora, minuto, segundo);
+        
+        // Draw second clock (right side)
+        dibujarReloj(768, 256, hora, minuto, segundo);
+                
+        clearTimeout(temporizador); // Clear previous timer
+        temporizador = setTimeout(bucle, 1000); // Recursive call
+      }
+      
+      function dibujarReloj(centroX, centroY, hora, minuto, segundo) {
+        // Draw clock circle
+        contexto.lineWidth = 19;
+        contexto.strokeStyle = "black";
+        contexto.beginPath();
+        contexto.arc(centroX, centroY, 200, 0, Math.PI * 2);
+        contexto.stroke();
+        
+        // Draw hour markers
+        contexto.lineWidth = 5;
+        contexto.strokeStyle = "#333";
+        for (let i = 0; i < 12; i++) {
+          let angulo = i * (Math.PI * 2 / 12) - Math.PI / 2;
+          contexto.beginPath();
+          contexto.moveTo(
+            centroX + Math.cos(angulo) * 180,
+            centroY + Math.sin(angulo) * 180
+          );
+          contexto.lineTo(
+            centroX + Math.cos(angulo) * 200,
+            centroY + Math.sin(angulo) * 200
+          );
+          contexto.stroke();
+        }
+        
+        // Draw second hand
+        contexto.lineWidth = 5;
+        contexto.strokeStyle = "#DC3907";       
+        let angulo_segundo = segundo * (Math.PI * 2 / 60) - Math.PI / 2;
+        contexto.beginPath();
+        contexto.moveTo(centroX, centroY);
+        contexto.lineTo(
+          centroX + Math.cos(angulo_segundo) * 180,
+          centroY + Math.sin(angulo_segundo) * 180
+        );
+        contexto.stroke();
+        
+        // Draw minute hand
+        contexto.lineWidth = 15;
+        contexto.strokeStyle = "#a4e5cf";          
+        let angulo_minuto = minuto * (Math.PI * 2 / 60) - Math.PI / 2;
+        contexto.beginPath();
+        contexto.moveTo(centroX, centroY);
+        contexto.lineTo(
+          centroX + Math.cos(angulo_minuto) * 150,
+          centroY + Math.sin(angulo_minuto) * 150
+        );
+        contexto.stroke();
+        
+        // Draw hour hand (adjusted to show 12-hour format)
+        contexto.lineWidth = 25;
+        contexto.strokeStyle = "#DC3907";
+        // Convert to 12-hour format and include minutes for smooth movement
+        let hora12 = hora % 12;
+        let angulo_hora = (hora12 + minuto/60) * (Math.PI * 2 / 12) - Math.PI / 2;
+        contexto.beginPath();
+        contexto.moveTo(centroX, centroY);
+        contexto.lineTo(
+          centroX + Math.cos(angulo_hora) * 100,
+          centroY + Math.sin(angulo_hora) * 100
+        );
+        contexto.stroke();
+        
+        // Draw center circle
+        contexto.beginPath();
+        contexto.arc(centroX, centroY, 20, 0, Math.PI * 2);
+        contexto.fillStyle = "#333";
+        contexto.fill();
+        
+        // Draw outer circle again for crisp edge
+        contexto.lineWidth = 5;
+        contexto.strokeStyle = "black";
+        contexto.beginPath();
+        contexto.arc(centroX, centroY, 200, 0, Math.PI * 2);
+        contexto.stroke();
+      }
+      
+      // Start the animation
+      bucle();
+    </script>
+  </body>
+</html>

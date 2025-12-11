@@ -1,0 +1,69 @@
+<!doctype html>
+<html>
+  <head>	
+    <style>
+    </style>
+  </head>
+  <body>
+   <canvas></canvas>
+    <script>
+      let temporizador = setTimeout("bucle()",1000); // Dentro de un seg, entra dentro del bucle    
+      let lienzo = document.querySelector("canvas");  
+      lienzo.width = 512;
+      lienzo.height = 512;
+      let contexto = lienzo.getContext("2d");   // Voy a dibujar en 2D    
+      
+      // Condición del bucle
+      function bucle(){
+      	let fecha = new Date();
+
+      	let hora = fecha.getHours();
+      	let minuto = fecha.getMinutes();
+      	let segundo = fecha.getSeconds();
+       
+       contexto.clearRect(0,0,512,512); // Borro el lienzo
+       
+       // circulo
+       contexto.beginPath();
+       //arco: xinicial, yinicial, radio, anguloinicial,angulofinal
+       contexto.arc(256,256,200,0,Math.PI*2); // Dibujo un circulo
+       contexto.stroke();                      // Y trazo linea
+
+       // Manecilla de los segundos
+       angulo_segundo = segundo*(Math.PI*2/60)
+        contexto.beginPath(); 			// Empiezo a dibujar
+        contexto.moveTo(256,256);		// Muevo el cursor al centro del reloj
+        contexto.lineTo(
+          256+Math.cos(angulo_segundo)*200,
+          256+Math.sin(angulo_segundo)*200
+        )
+        contexto.stroke();
+
+
+       // Manecilla de los minutos
+       angulo_segundo = minuto*(Math.PI*2/60)
+        contexto.beginPath(); 			// Empiezo a dibujar
+        contexto.moveTo(256,256);		// Muevo el cursor al centro del reloj
+        contexto.lineTo(
+          256+Math.cos(angulo_segundo)*150,
+          256+Math.sin(angulo_segundo)*150
+        )
+        contexto.stroke();               
+
+
+       // Manecilla de los segundos
+       angulo_segundo = hora*(Math.PI*2/60)
+        contexto.beginPath(); 			// Empiezo a dibujar
+        contexto.moveTo(256,256);		// Muevo el cursor al centro del reloj
+        contexto.lineTo(
+          256+Math.cos(angulo_segundo)*100,
+          256+Math.sin(angulo_segundo)*100
+        )
+        contexto.stroke();              
+        clearTimeout(temporizador);                // Borro el temporizador anterior
+        temporizador = setTimeout("bucle()",1000); // Llamada recursiva
+      }
+      bucle();
+    </script>
+  </body>
+</html>
