@@ -13,15 +13,20 @@
       <button>Autores</button>
     </nav>
     <main>
-    	<?php 
-    	  if(isset($_GET['accion'])){             // Si hay "accion" en la URL
-    	    if($_GET['accion'] == "nuevo"){
-    	    include "inc/create/formulario.php";  // En ese caso mete el formulario
-    	  }
-    	 }else{                                  // En caso contrario
-    	  include "inc/read/leer.php";           // Enseñame la tabla
-    	 }
-    	?>
+    	<?php
+      	// Esto se conoce como router /////////////
+      	if(isset($_GET['accion'])){
+        	if($_GET['accion'] == "nuevo"){
+          	include "inc/create/formulario.php";
+          }else if($_GET['accion'] == "eliminar"){ // Defino la acción eliminar
+          	include "inc/delete/eliminar.php";		// En ese caso incluyo eliminar.php
+          }else if($_GET['accion'] == "editar"){
+           include "inc/update/formularioactualizar.php";
+          }
+        }else{
+       		include "inc/read/leer.php"; 
+        }
+      ?>
       <a href="?accion=nuevo" id="nuevo">+</a>    	
     </main>
   </body>

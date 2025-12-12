@@ -16,6 +16,10 @@
      echo "<td>".$fila['fecha_publicacion']."</td>";
      echo "<td>".$fila['autor_id']."</td>";
      echo "<td>".$fila['contenido']."</td>";
+     // NUEVO ///////////////
+     echo "<td><a href='?accion=editar&id=".$fila['id']."' class='editar' title='Cuidado que vas a editar un dato'>🖋</a></td>";
+     echo "<td><a href='?accion=eliminar&id=".$fila['id']."' class='eliminar' title='MÁS Cuidado que vas a ELIMINAR un dato'>✖</a></td>";
+   	// NUEVO ///////////////     
     echo "</tr>";
    }
 	 
