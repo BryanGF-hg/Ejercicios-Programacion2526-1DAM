@@ -1,0 +1,67 @@
+<!doctype html>
+<html>
+  <head>
+   <meta charset="utf-8">
+   <style>
+      .jocarsacarrusel{width:1280px;height:720px;}
+      .jocarsacarrusel section{width:8960px;display:flex;left:0px;transition:all 1s;}
+      .jocarsacarrusel section img{width:1280px;height:720px;}
+   </style>
+  </head>
+  <body>
+    <div class="jocarsacarrusel">
+      <img src="2ce44eb762f8275342183b63266a9e8f.jpg" alt="Texto alternativo">
+      <img src="muzapop-twitter-pfp.jpg" alt="Texto alternativo">
+      <img src="__remilia_scarlet_flandre_scarlet_izayoi_sakuya_patchouli_knowledge_hong_meiling_and_1_more_touhou_drawn_by_mikako_chan3__sample-4bb762d8a743039e5ec11b2d22ec61d5.jpg" alt="Texto alternativo">
+      <img src="BourbonClipperAscendance_2026-01-15_20-02-27.jpg" alt="Texto alternativo">
+      <img src="ShidoIzuki_2026-01-17_2012607175856673212.jpg" alt="Texto alternativo">
+      <img src="Summer5ooday_2026-01-13_2011177975803494607_1.jpg" alt="Texto alternativo">
+      <img src="Taigaa-toradora.jpg" alt="Texto alternativo">
+      <img src="Z3ydtTHKt6o-maxresdefault.jpg" alt="Texto alternativo">
+    </div>
+    <script>
+      // Cojo el contenedor externo (es un solo elemento)
+      let contenedor = document.querySelector(".jocarsacarrusel");
+      // Cojo las imagenes de dentro (es un array de elementos)
+      let contenido = document.querySelectorAll(".jocarsacarrusel img")
+      // Para cada una de las imagenes
+      contenido.forEach(function(elemento){
+        // Quito la imagen del html
+      	elemento.remove()
+      })
+      // Creo un nuevo contenedor que es una seccion
+      let nuevo_contenedor = document.createElement("section")
+      nuevo_contenedor.style.left = 0
+      // Al contenedor antiguo le añado el nuevo contenedor
+      contenedor.appendChild(nuevo_contenedor)
+      
+      // Dentro del nuevo contenedor meto las imagenes una a una
+      contenido.forEach(function(elemento){
+      	nuevo_contenedor.appendChild(elemento)
+      })
+      // Ahora creo dos botones
+      let botonatras = document.createElement("button")
+      botonatras.textContent = "◀"
+      contenedor.appendChild(botonatras)
+      let botondelante = document.createElement("button")
+      botondelante.textContent = "▶"
+      contenedor.appendChild(botondelante)
+      var anchura = 1280;
+      var contador = 0;
+      // Cuando haga click en el boton delante
+      botondelante.onclick = function(){
+        // Le quito un elemento al contador
+        contador--;
+        // Actualizo la posicion del nuevo contenedor
+      	nuevo_contenedor.style.left = contador*anchura+"px"
+      }
+      // Cuando haga click en el boton atras
+      botonatras.onclick = function(){
+        // Le quito un elemento al contador
+        contador++;
+        // Actualizo la posicion del nuevo contenedor
+      	nuevo_contenedor.style.left = contador*anchura+"px"
+      }
+    </script>
+  </body>
+</html>
