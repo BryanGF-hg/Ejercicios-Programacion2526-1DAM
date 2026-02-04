@@ -1,0 +1,748 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paint.NET Minimalista</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            user-select: none;
+        }
+
+        body {
+            background: linear-gradient(135deg, #2c3e50 0%, #4a6491 100%);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            background-color: #f5f5f5;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+            height: 90vh;
+        }
+
+        /* Título simplificado */
+        .app-title {
+            background: linear-gradient(135deg, #0066cc 0%, #004d99 100%);
+            color: white;
+            padding: 15px 25px;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+            border-bottom: 2px solid #0052a3;
+        }
+
+        /* Main Content */
+        .content {
+            display: flex;
+            flex: 1;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 220px;
+            background-color: #eaeaea;
+            padding: 15px;
+            border-right: 1px solid #ccc;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .tools-section, .colors-section {
+            background-color: white;
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .section-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #555;
+            margin-bottom: 15px;
+            padding-bottom: 5px;
+            border-bottom: 1px solid #eee;
+        }
+
+        /* Tools Grid */
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .tool-btn {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 10px 5px;
+            border: 2px solid transparent;
+            background-color: #f8f8f8;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-align: center;
+        }
+
+        .tool-btn:hover {
+            background-color: #eef5ff;
+            border-color: #0066cc;
+        }
+
+        .tool-btn.active {
+            background-color: #d9e8ff;
+            border-color: #0066cc;
+        }
+
+        .tool-icon {
+            font-size: 20px;
+            margin-bottom: 5px;
+        }
+
+        .tool-name {
+            font-size: 12px;
+            margin-bottom: 3px;
+            font-weight: 500;
+        }
+
+        .tool-shortcut {
+            font-size: 10px;
+            color: #777;
+            background-color: #f0f0f0;
+            padding: 1px 4px;
+            border-radius: 3px;
+        }
+
+        /* Color Picker */
+        .color-picker-container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .color-input-group {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .color-input-group label {
+            font-size: 13px;
+            width: 60px;
+            color: #555;
+        }
+
+        .color-preview {
+            width: 40px;
+            height: 40px;
+            border-radius: 6px;
+            border: 2px solid #ccc;
+            cursor: pointer;
+        }
+
+        .color-palette {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 10px;
+        }
+
+        .color-swatch {
+            width: 25px;
+            height: 25px;
+            border-radius: 4px;
+            cursor: pointer;
+            border: 1px solid #ddd;
+            transition: transform 0.2s;
+        }
+
+        .color-swatch:hover {
+            transform: scale(1.1);
+        }
+
+        /* Slider */
+        .slider-container {
+            margin-top: 5px;
+        }
+
+        .slider-label {
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            margin-bottom: 5px;
+            color: #555;
+        }
+
+        .slider-value {
+            font-weight: bold;
+            color: #0066cc;
+        }
+
+        .slider {
+            width: 100%;
+            height: 6px;
+            border-radius: 3px;
+            background: #ddd;
+            outline: none;
+            -webkit-appearance: none;
+        }
+
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #0066cc;
+            cursor: pointer;
+            border: 2px solid white;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+
+        /* Canvas Area */
+        .canvas-container {
+            flex: 1;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            background-color: #f0f0f0;
+        }
+
+        .canvas-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 0;
+            margin-bottom: 15px;
+            border-bottom: 1px solid #ddd;
+        }
+
+        .canvas-size {
+            font-size: 14px;
+            color: #666;
+        }
+
+        .canvas-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .action-btn {
+            padding: 8px 15px;
+            background: linear-gradient(to bottom, #f8f8f8, #e8e8e8);
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            background: linear-gradient(to bottom, #e8e8e8, #d8d8d8);
+        }
+
+        .action-btn.primary {
+            background: linear-gradient(to bottom, #0066cc, #0052a3);
+            color: white;
+            border-color: #004d99;
+        }
+
+        .action-btn.primary:hover {
+            background: linear-gradient(to bottom, #0052a3, #004080);
+        }
+
+        canvas {
+            background-color: white;
+            border: 2px solid #ccc;
+            border-radius: 6px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            cursor: crosshair;
+            flex: 1;
+            width: 100%;
+        }
+
+        /* Status Bar */
+        .status-bar {
+            background-color: #eaeaea;
+            padding: 8px 20px;
+            border-top: 1px solid #ccc;
+            display: flex;
+            justify-content: space-between;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .status-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        /* Responsive */
+        @media (max-width: 1200px) {
+            .container {
+                height: 85vh;
+            }
+            
+            .sidebar {
+                width: 200px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .content {
+                flex-direction: column;
+            }
+            
+            .sidebar {
+                width: 100%;
+                flex-direction: row;
+                justify-content: space-between;
+                border-right: none;
+                border-bottom: 1px solid #ccc;
+            }
+            
+            .tools-section, .colors-section {
+                flex: 1;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Título simplificado -->
+        <div class="app-title">
+            🎨 Paint.NET Minimalista
+        </div>
+
+        <!-- Main Content -->
+        <div class="content">
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <!-- Tools Section -->
+                <div class="tools-section">
+                    <div class="section-title">Herramientas</div>
+                    <div class="tools-grid">
+                        <div class="tool-btn active" id="tool-pencil" data-shortcut="P">
+                            <div class="tool-icon">✏️</div>
+                            <div class="tool-name">Lápiz</div>
+                            <div class="tool-shortcut">P</div>
+                        </div>
+                        <div class="tool-btn" id="tool-brush" data-shortcut="B">
+                            <div class="tool-icon">🖌️</div>
+                            <div class="tool-name">Pincel</div>
+                            <div class="tool-shortcut">B</div>
+                        </div>
+                        <div class="tool-btn" id="tool-eraser" data-shortcut="E">
+                            <div class="tool-icon">🧽</div>
+                            <div class="tool-name">Borrador</div>
+                            <div class="tool-shortcut">E</div>
+                        </div>
+                        <div class="tool-btn" id="tool-line" data-shortcut="L">
+                            <div class="tool-icon">📏</div>
+                            <div class="tool-name">Línea</div>
+                            <div class="tool-shortcut">L</div>
+                        </div>
+                        <div class="tool-btn" id="tool-rectangle" data-shortcut="R">
+                            <div class="tool-icon">⬜</div>
+                            <div class="tool-name">Rectángulo</div>
+                            <div class="tool-shortcut">R</div>
+                        </div>
+                        <div class="tool-btn" id="tool-circle" data-shortcut="C">
+                            <div class="tool-icon">⭕</div>
+                            <div class="tool-name">Círculo</div>
+                            <div class="tool-shortcut">C</div>
+                        </div>
+                        <div class="tool-btn" id="tool-fill" data-shortcut="F">
+                            <div class="tool-icon">🎯</div>
+                            <div class="tool-name">Bote Pintura</div>
+                            <div class="tool-shortcut">F</div>
+                        </div>
+                        <div class="tool-btn" id="tool-select" data-shortcut="S">
+                            <div class="tool-icon">🔲</div>
+                            <div class="tool-name">Selección</div>
+                            <div class="tool-shortcut">S</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Colors & Settings Section -->
+                <div class="colors-section">
+                    <div class="section-title">Color y Grosor</div>
+                    
+                    <div class="color-picker-container">
+                        <div class="color-input-group">
+                            <label>Color:</label>
+                            <input type="color" id="color-picker" value="#0066cc">
+                            <div class="color-preview" id="color-preview" style="background-color: #0066cc;"></div>
+                        </div>
+                        
+                        <div class="slider-container">
+                            <div class="slider-label">
+                                <span>Grosor:</span>
+                                <span class="slider-value" id="brush-size-value">5px</span>
+                            </div>
+                            <input type="range" min="1" max="50" value="5" class="slider" id="brush-size">
+                        </div>
+
+                        <div class="color-palette">
+                            <div class="color-swatch" style="background-color: #000000;" data-color="#000000"></div>
+                            <div class="color-swatch" style="background-color: #ff0000;" data-color="#ff0000"></div>
+                            <div class="color-swatch" style="background-color: #00ff00;" data-color="#00ff00"></div>
+                            <div class="color-swatch" style="background-color: #0000ff;" data-color="#0000ff"></div>
+                            <div class="color-swatch" style="background-color: #ffff00;" data-color="#ffff00"></div>
+                            <div class="color-swatch" style="background-color: #ff00ff;" data-color="#ff00ff"></div>
+                            <div class="color-swatch" style="background-color: #00ffff;" data-color="#00ffff"></div>
+                            <div class="color-swatch" style="background-color: #ffffff;" data-color="#ffffff"></div>
+                            <div class="color-swatch" style="background-color: #808080;" data-color="#808080"></div>
+                            <div class="color-swatch" style="background-color: #800000;" data-color="#800000"></div>
+                            <div class="color-swatch" style="background-color: #008000;" data-color="#008000"></div>
+                            <div class="color-swatch" style="background-color: #000080;" data-color="#000080"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Canvas Area -->
+            <div class="canvas-container">
+                <div class="canvas-toolbar">
+                    <div class="canvas-size">Tamaño: 800 x 600px</div>
+                    <div class="canvas-actions">
+                        <button class="action-btn" id="clear-canvas">Limpiar Lienzo</button>
+                        <button class="action-btn" id="undo-btn">Deshacer (Ctrl+Z)</button>
+                        <button class="action-btn primary" id="save-btn">Guardar Imagen</button>
+                    </div>
+                </div>
+                <canvas id="main-canvas" width="800" height="600"></canvas>
+            </div>
+        </div>
+
+        <!-- Status Bar -->
+        <div class="status-bar">
+            <div class="status-item">
+                <span>Herramienta:</span>
+                <span id="current-tool">Lápiz</span>
+            </div>
+            <div class="status-item">
+                <span>Posición:</span>
+                <span id="cursor-position">0, 0</span>
+            </div>
+            <div class="status-item">
+                <span>Color:</span>
+                <span id="current-color">#0066cc</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Canvas setup
+        const canvas = document.getElementById('main-canvas');
+        const ctx = canvas.getContext('2d');
+        
+        // State variables
+        let isDrawing = false;
+        let lastX = 0;
+        let lastY = 0;
+        let currentTool = 'pencil';
+        let currentColor = '#0066cc';
+        let brushSize = 5;
+        let drawingHistory = [];
+        let historyIndex = -1;
+        
+        // UI Elements
+        const colorPicker = document.getElementById('color-picker');
+        const colorPreview = document.getElementById('color-preview');
+        const brushSizeSlider = document.getElementById('brush-size');
+        const brushSizeValue = document.getElementById('brush-size-value');
+        const toolButtons = document.querySelectorAll('.tool-btn');
+        const colorSwatches = document.querySelectorAll('.color-swatch');
+        const clearBtn = document.getElementById('clear-canvas');
+        const undoBtn = document.getElementById('undo-btn');
+        const saveBtn = document.getElementById('save-btn');
+        const currentToolSpan = document.getElementById('current-tool');
+        const cursorPositionSpan = document.getElementById('cursor-position');
+        const currentColorSpan = document.getElementById('current-color');
+        
+        // CORRECCIÓN: Función para obtener coordenadas correctas
+        function getCanvasCoordinates(e) {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;    // Relación escala X
+            const scaleY = canvas.height / rect.height;  // Relación escala Y
+            
+            return {
+                x: (e.clientX - rect.left) * scaleX,
+                y: (e.clientY - rect.top) * scaleY
+            };
+        }
+        
+        // Initialize canvas
+        function initCanvas() {
+            ctx.fillStyle = 'white';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            saveState();
+            
+            // Set initial color
+            ctx.strokeStyle = currentColor;
+            ctx.fillStyle = currentColor;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+        }
+        
+        // Save canvas state to history
+        function saveState() {
+            // Remove any future states if we're not at the latest
+            if (historyIndex < drawingHistory.length - 1) {
+                drawingHistory = drawingHistory.slice(0, historyIndex + 1);
+            }
+            
+            drawingHistory.push(canvas.toDataURL());
+            historyIndex++;
+        }
+        
+        // Undo last action
+        function undo() {
+            if (historyIndex > 0) {
+                historyIndex--;
+                const img = new Image();
+                img.onload = () => {
+                    ctx.clearRect(0, 0, canvas.width, canvas.height);
+                    ctx.drawImage(img, 0, 0);
+                };
+                img.src = drawingHistory[historyIndex];
+            }
+        }
+        
+        // Save image
+        function saveImage() {
+            const link = document.createElement('a');
+            link.download = 'paintnet-minimalista.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
+        }
+        
+        // Draw with current tool
+        function draw(e) {
+            if (!isDrawing) return;
+            
+            // CORRECCIÓN: Usar coordenadas escaladas
+            const coords = getCanvasCoordinates(e);
+            const x = coords.x;
+            const y = coords.y;
+            
+            ctx.strokeStyle = currentColor;
+            ctx.fillStyle = currentColor;
+            ctx.lineWidth = brushSize;
+            
+            switch(currentTool) {
+                case 'pencil':
+                case 'brush':
+                    ctx.globalCompositeOperation = 'source-over';
+                    ctx.lineWidth = brushSize;
+                    ctx.lineCap = 'round';
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(lastX, lastY);
+                    ctx.lineTo(x, y);
+                    ctx.stroke();
+                    break;
+                    
+                case 'eraser':
+                    ctx.globalCompositeOperation = 'destination-out';
+                    ctx.lineWidth = brushSize * 2;
+                    ctx.lineCap = 'round';
+                    
+                    ctx.beginPath();
+                    ctx.moveTo(lastX, lastY);
+                    ctx.lineTo(x, y);
+                    ctx.stroke();
+                    break;
+                    
+                case 'line':
+                    // For line tool, we'll draw on mouse up
+                    break;
+                    
+                case 'rectangle':
+                    // For rectangle tool, we'll draw on mouse up
+                    break;
+                    
+                case 'circle':
+                    // For circle tool, we'll draw on mouse up
+                    break;
+            }
+            
+            // CORRECCIÓN: Actualizar las coordenadas escaladas
+            lastX = x;
+            lastY = y;
+        }
+        
+        // Start drawing
+        function startDrawing(e) {
+            isDrawing = true;
+            
+            // CORRECCIÓN: Usar coordenadas escaladas desde el inicio
+            const coords = getCanvasCoordinates(e);
+            lastX = coords.x;
+            lastY = coords.y;
+            
+            // Save state for shape tools
+            if (['line', 'rectangle', 'circle'].includes(currentTool)) {
+                saveState();
+            }
+        }
+        
+        // Stop drawing
+        function stopDrawing() {
+            if (!isDrawing) return;
+            
+            isDrawing = false;
+            
+            // For shape tools, draw the final shape
+            if (['line', 'rectangle', 'circle'].includes(currentTool)) {
+                ctx.strokeStyle = currentColor;
+                ctx.fillStyle = currentColor;
+                ctx.lineWidth = brushSize;
+                ctx.globalCompositeOperation = 'source-over';
+            } else {
+                // Save state for freehand tools
+                saveState();
+            }
+        }
+        
+        // Update cursor position display
+        function updateCursorPosition(e) {
+            const rect = canvas.getBoundingClientRect();
+            const x = Math.floor(e.clientX - rect.left);
+            const y = Math.floor(e.clientY - rect.top);
+            
+            if (x >= 0 && x <= rect.width && y >= 0 && y <= rect.height) {
+                cursorPositionSpan.textContent = `${x}, ${y}`;
+            }
+        }
+        
+        // Event Listeners
+        canvas.addEventListener('mousedown', startDrawing);
+        canvas.addEventListener('mousemove', (e) => {
+            updateCursorPosition(e);
+            draw(e);
+        });
+        canvas.addEventListener('mouseup', stopDrawing);
+        canvas.addEventListener('mouseout', stopDrawing);
+        
+        // Color picker
+        colorPicker.addEventListener('input', (e) => {
+            currentColor = e.target.value;
+            colorPreview.style.backgroundColor = currentColor;
+            currentColorSpan.textContent = currentColor;
+        });
+        
+        // Brush size slider
+        brushSizeSlider.addEventListener('input', (e) => {
+            brushSize = e.target.value;
+            brushSizeValue.textContent = `${brushSize}px`;
+        });
+        
+        // Tool selection
+        toolButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                // Remove active class from all buttons
+                toolButtons.forEach(b => b.classList.remove('active'));
+                
+                // Add active class to clicked button
+                btn.classList.add('active');
+                
+                // Update current tool
+                currentTool = btn.id.replace('tool-', '');
+                currentToolSpan.textContent = btn.querySelector('.tool-name').textContent;
+            });
+        });
+        
+        // Color swatches
+        colorSwatches.forEach(swatch => {
+            swatch.addEventListener('click', () => {
+                const color = swatch.getAttribute('data-color');
+                currentColor = color;
+                colorPicker.value = color;
+                colorPreview.style.backgroundColor = color;
+                currentColorSpan.textContent = color;
+            });
+        });
+        
+        // Clear canvas
+        clearBtn.addEventListener('click', () => {
+            if (confirm('¿Estás seguro de que quieres limpiar el lienzo?')) {
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                initCanvas();
+            }
+        });
+        
+        // Undo button
+        undoBtn.addEventListener('click', undo);
+        
+        // Save button
+        saveBtn.addEventListener('click', saveImage);
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', (e) => {
+            // Tool shortcuts
+            const toolShortcuts = {
+                'p': 'pencil',
+                'b': 'brush',
+                'e': 'eraser',
+                'l': 'line',
+                'r': 'rectangle',
+                'c': 'circle',
+                'f': 'fill',
+                's': 'select'
+            };
+            
+            if (toolShortcuts[e.key.toLowerCase()]) {
+                e.preventDefault();
+                const toolId = `tool-${toolShortcuts[e.key.toLowerCase()]}`;
+                const toolBtn = document.getElementById(toolId);
+                if (toolBtn) {
+                    toolBtn.click();
+                }
+            }
+            
+            // Ctrl+Z for undo
+            if (e.ctrlKey && e.key === 'z') {
+                e.preventDefault();
+                undo();
+            }
+            
+            // Ctrl+S for save
+            if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                saveImage();
+            }
+            
+            // Escape to cancel drawing
+            if (e.key === 'Escape') {
+                isDrawing = false;
+            }
+        });
+        
+        // Initialize
+        initCanvas();
+        
+        // Update color preview when color changes
+        colorPreview.addEventListener('click', () => {
+            colorPicker.click();
+        });
+    </script>
+</body>
+</html>
