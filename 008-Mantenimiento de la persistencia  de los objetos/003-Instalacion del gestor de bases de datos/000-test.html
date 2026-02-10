@@ -1,0 +1,198 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Agar Farm</title>
+<style>
+  body { margin:0; background:#111; }
+  canvas { display:block; margin:auto; background:#222; }
+</style>
+</head>
+<body>
+
+<canvas></canvas>
+
+<script>
+const canvas = document.querySelector("canvas");
+const ctx = canvas.getContext("2d");
+
+canvas.width = 700;
+canvas.height = 512;
+
+class Npc {
+    constructor(){
+        this.x = Math.random() * canvas.width;
+        this.y = Math.random() * canvas.height;
+        // give a minimum radius so none are 0
+        this.radio = 4 + Math.random() * 25;
+        this.color = `rgb(${Math.floor(Math.random()*255)},${Math.floor(Math.random()*255)},${Math.floor(Math.random()*255)})`;
+
+        this.angle = Math.random() * Math.PI * 2;
+        this.speed = 0.5 + Math.random() * 1.0;
+    }
+
+    move(npcs){
+        // Slight random turn (organic movement)
+        this.angle += (Math.random() - 0.5) * 0.1;
+
+        // Avoid nearby NPCs
+        npcs.forEach(other => {
+            if (other === this) return;
+            let dx = other.x - this.x;
+            let dy = other.y - this.y;
+            let dist = Math.hypot(dx,dy);
+            let minDist = this.radio + other.radio + 10;
+
+            if (dist < minDist){
+                // Turn away
+                this.angle -= 0.15;
+            }
+        });
+
+        // Move forward
+        this.x += Math.cos(this.angle) * this.speed;
+        this.y += Math.sin(this.angle) * this.speed;
+
+        // Border collision
+        if (this.x < this.radio){ this.x = this.radio; this.angle += Math.PI; }
+        if (this.x > canvas.width - this.radio){ this.x = canvas.width - this.radio; this.angle += Math.PI; }
+        if (this.y < this.radio){ this.y = this.radio; this.angle += Math.PI; }
+        if (this.y > canvas.height - this.radio){ this.y = canvas.height - this.radio; this.angle += Math.PI; }
+    }
+
+    draw(){
+        ctx.beginPath();
+        ctx.fillStyle = this.color;
+        ctx.arc(this.x, this.y, this.radio, 0, Math.PI*2);
+        ctx.fill();
+    }
+} // <-- CLOSE Npc CLASS HERE ✅
+
+// ---- Player class must be outside Npc ----
+class Player extends Npc {
+    constructor(){
+        super();                 // use npc properties
+        this.radio = 15;         // bigger player
+        this.color = "white";    // visible
+        this.speed = 2.5;        // faster
+        this.targetX = this.x;
+        this.targetY = this.y;
+       
+        // mouse control
+        window.addEventListener("mousemove", e => {
+            const rect = canvas.getBoundingClientRect();
+            this.targetX = e.clientX - rect.left;
+            this.targetY = e.clientY - rect.top;
+        });
+    }
+
+    movePlayer(){
+        let dx = this.targetX - this.x;
+        let dy = this.targetY - this.y;
+        let dist = Math.hypot(dx,dy);
+
+        if (dist > 1){
+            this.x += (dx / dist) * this.speed;
+            this.y += (dy / dist) * this.speed;
+        }
+
+        // Keep player inside the canvas as well
+        if (this.x < this.radio) this.x = this.radio;
+        if (this.x > canvas.width - this.radio) this.x = canvas.width - this.radio;
+        if (this.y < this.radio) this.y = this.radio;
+        if (this.y > canvas.height - this.radio) this.y = canvas.height - this.radio;
+    }
+
+    deleteBalls(npcs){
+        // loop backwards because we REMOVE items
+        for (let i = npcs.length - 1; i >= 0; i--){
+            let npc = npcs[i];
+            let dx = npc.x - this.x;
+            let dy = npc.y - this.y;
+            let dist = Math.hypot(dx,dy);
+
+            if (dist < this.radio + npc.radio){
+                npcs.splice(i,1); // DELETE ball
+            }
+        }
+    }
+}
+
+let npcs = [];
+let player = new Player();
+
+// Create initial conditions
+function create_initial_conditions(count = 50){
+    npcs = [];
+    for (let i = 0; i < count; i++){
+        npcs.push(new Npc());
+    }
+}
+
+// Optional: real collision resolution so NPCs never overlap
+function resolveCollisions(npcs){
+    for (let i = 0; i < npcs.length; i++){
+        for (let j = i + 1; j < npcs.length; j++){
+            let A = npcs[i];
+            let B = npcs[j];
+
+            let dx = B.x - A.x;
+            let dy = B.y - A.y;
+            let dist = Math.hypot(dx, dy);
+            let minDist = A.radio + B.radio;
+
+            if (dist < minDist && dist > 0){
+                let overlap = minDist - dist;
+
+                // Normalize direction
+                let nx = dx / dist;
+                let ny = dy / dist;
+
+                // Push each NPC away from the collision center
+                A.x -= nx * (overlap / 2);
+                A.y -= ny * (overlap / 2);
+
+                B.x += nx * (overlap / 2);
+                B.y += ny * (overlap / 2);
+
+                // Make them bounce slightly by adjusting angle
+                A.angle += Math.PI / 3;
+                B.angle -= Math.PI / 3;
+            }
+        }
+    }
+}
+
+// Init game
+function init(){
+    create_initial_conditions();
+    loop();
+}
+
+// Game loop
+function loop(){
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    // NPCs move
+    npcs.forEach(npc => npc.move(npcs));
+
+    // Optional: resolve overlaps
+    resolveCollisions(npcs);
+
+    // Draw NPCs
+    npcs.forEach(npc => npc.draw());
+
+    // Player moves & interacts
+    player.movePlayer();
+    player.deleteBalls(npcs);
+    player.draw();
+
+    requestAnimationFrame(loop);
+}
+
+init();
+</script>
+
+</body>
+</html>
+
