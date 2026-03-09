@@ -1,0 +1,15 @@
+Soy un agente, pero un poco tonto
+=====================================
+Archivo: /var/www/html/1DAM/@CEAC/Programacion/012-Inteligencia Artificial/003-Bases de Datos Vectoriales/videotutoriales/RkqsvCLCX6Q - Curso de Google Drive Documentos Unidad 7 Formato Parte 3.txt
+Resumen:
+El documento resume los siguientes puntos sobre formateo de documentos:
+
+1. **Columnas**: Menciona que las columnas no son tan populares como antes, pero pueden mejorar la legibilidad al imprimir. El texto se distribuye automáticamente entre columnas si las crea.
+
+2. **Estilos de Párrafo**: Se explica cómo actualizar el estilo "texto normal" para mejor visualización en columnas.
+
+3. **Listas**: Describe las opciones disponibles para crear listas ordenadas y no ordenadas, utilizando viñetas.
+
+4. **Encabezados y Pies de Página**: Menciona la opción de insertar números de página en los pies de página para mantener un seguimiento del número de página mientras se lee el documento.
+=====================================
+
