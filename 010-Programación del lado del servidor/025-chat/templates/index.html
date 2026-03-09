@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="utf-8">
+    <title>Minichat</title>
+</head>
+<body>
+    <h1>Minichat</h1>
+
+    <form method="post">
+        <input type="text" name="mensaje" placeholder="Escribe un mensaje">
+        <button type="submit">Enviar</button>
+    </form>
+
+    <hr>
+
+    {% for mensaje in mensajes %}
+        <p>{{ mensaje }}</p>
+    {% endfor %}
+</body>
+</html>
